@@ -578,7 +578,6 @@ import ArkLib.ToMathlib.Finset.ToListWithProof
 import ArkLib.ToMathlib.FinsetChebyshev
 import ArkLib.ToMathlib.FinsetMarkov
 import ArkLib.ToMathlib.Finsupp.Fin
-import ArkLib.ToMathlib.FirstMomentCover
 import ArkLib.ToMathlib.FractionFieldSeparable
 import ArkLib.ToMathlib.FriComplete
 import ArkLib.ToMathlib.FriCompleteCompose
@@ -608,7 +607,6 @@ import ArkLib.ToMathlib.HenselDatumProducer
 import ArkLib.ToMathlib.HenselUniqueness
 import ArkLib.ToMathlib.HliftDvd
 import ArkLib.ToMathlib.IngredientCBridge
-import ArkLib.ToMathlib.InterpUniqueness
 import ArkLib.ToMathlib.IsSquareNatCast
 import ArkLib.ToMathlib.KK25NearCapacityProof
 import ArkLib.ToMathlib.KStateWeaken
