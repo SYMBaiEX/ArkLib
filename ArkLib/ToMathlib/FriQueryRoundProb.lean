@@ -152,8 +152,14 @@ single-query detection of a `δ`-far word — into a `t`-round rejection guarant
 /-- `(1 - δ) ^ t` is antitone in `t`, since `1 - δ ≤ 1`: more queries can only shrink the
 joint-acceptance probability of a far word. -/
 theorem accProb_antitone (δ : ℝ≥0∞) {t₁ t₂ : ℕ} (h : t₁ ≤ t₂) :
-    (1 - δ) ^ t₂ ≤ (1 - δ) ^ t₁ :=
-  pow_le_pow_right_of_le_one (by simp) tsub_le_self h
+    (1 - δ) ^ t₂ ≤ (1 - δ) ^ t₁ := by
+  rcases Nat.exists_eq_add_of_le h with ⟨k, rfl⟩
+  rw [pow_add]
+  calc
+    (1 - δ) ^ t₁ * (1 - δ) ^ k ≤ (1 - δ) ^ t₁ * 1 := by
+      exact mul_le_mul_right
+        (pow_le_one₀ (zero_le _) (tsub_le_self : (1 : ℝ≥0∞) - δ ≤ 1)) _
+    _ = (1 - δ) ^ t₁ := by rw [mul_one]
 
 /-- The per-round detection lower bound `1 - (1 - δ) ^ t` is monotone in the number of queries
 `t`: more queries can only increase the rejection guarantee. -/
@@ -165,13 +171,16 @@ theorem detectBound_monotone (δ : ℝ≥0∞) {t₁ t₂ : ℕ} (h : t₁ ≤ t
 probability `≥ 1 - (1 - δ) ^ 1 = δ`. -/
 theorem detectBound_one (δ : ℝ≥0∞) (hδ : δ ≤ 1) :
     (1 : ℝ≥0∞) - (1 - δ) ^ 1 = δ := by
-  rw [pow_one, tsub_tsub_cancel_of_le hδ]
+  rw [pow_one]
+  exact ENNReal.sub_sub_cancel (a := (1 : ℝ≥0∞)) (b := δ) (by simp) hδ
 
 /-- For at least one query, the `t`-round detection lower bound dominates the single-query
 rejection probability `δ`. -/
 theorem detectBound_ge_delta (δ : ℝ≥0∞) (hδ : δ ≤ 1) {t : ℕ} (ht : 1 ≤ t) :
-    δ ≤ (1 : ℝ≥0∞) - (1 - δ) ^ t :=
-  (detectBound_one δ hδ).symm ▸ detectBound_monotone δ ht
+    δ ≤ (1 : ℝ≥0∞) - (1 - δ) ^ t := by
+  calc
+    δ = (1 : ℝ≥0∞) - (1 - δ) ^ 1 := (detectBound_one δ hδ).symm
+    _ ≤ (1 : ℝ≥0∞) - (1 - δ) ^ t := detectBound_monotone δ ht
 
 omit [DecidableEq ι] in
 /-- **A query round rejects a far word with probability ≥ the proximity bound.** If a proximity

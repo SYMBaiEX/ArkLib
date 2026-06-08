@@ -347,7 +347,6 @@ import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141PrizeReduction
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141Progress
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141UDRProximityGap
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141UniformResolved
-import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge1BruteForce
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge1Proof
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge244HwitRefutation
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallengeCollapse
