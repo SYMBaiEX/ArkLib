@@ -801,9 +801,9 @@ theorem reedSolomon_sharedLocator_natDegree_two_le_of_distinct_impulses
     intro x hx
     rw [Finset.mem_insert, Finset.mem_singleton] at hx
     rcases hx with rfl | rfl
-    · rw [Multiset.mem_toFinset, mem_roots hE0, IsRoot.def]
+    · rw [Multiset.mem_toFinset, Polynomial.mem_roots hE0, Polynomial.IsRoot.def]
       exact hEa
-    · rw [Multiset.mem_toFinset, mem_roots hE0, IsRoot.def]
+    · rw [Multiset.mem_toFinset, Polynomial.mem_roots hE0, Polynomial.IsRoot.def]
       exact hEb
   have hcard : ({α a, α b} : Finset F).card = 2 := by
     simp [hα]
@@ -811,7 +811,7 @@ theorem reedSolomon_sharedLocator_natDegree_two_le_of_distinct_impulses
     2 = ({α a, α b} : Finset F).card := hcard.symm
     _ ≤ E.roots.toFinset.card := Finset.card_le_card hsub
     _ ≤ Multiset.card E.roots := Multiset.toFinset_card_le _
-    _ ≤ E.natDegree := card_roots' E
+    _ ≤ E.natDegree := Polynomial.card_roots' E
 
 omit [Fintype ι] [DecidableEq F] in
 open Polynomial in
@@ -862,58 +862,6 @@ theorem reedSolomon_jointAgreement_of_degreeOne_decoding_curve
     simpa [Polynomial.eval_add, Polynomial.eval_smul, smul_eq_mul] using hmem
   · exact hcurve
 
-<<<<<<< HEAD
-open Polynomial in
-/-- **C2 — Nested-error full-radius joint agreement.**  If the error set of `u₁` against `f₁` is
-contained in that of `u₀` against `f₀` (`hnest`), then the single ordinary error locator for the
-`u₀`-errors, `E = ∏_{errs₀}(X − C αᵢ)` (degree `≤ e₀`), discharges *both* shared key equations: on
-the agreement coordinates of `u₀` it forces agreement of `u₁` as well, because there `i ∉ errs₀ ⊆
-errs₁ᶜ`.  Feeding `E` to `reedSolomon_jointAgreement_of_shared_locator_exact` yields joint agreement
-at the **full** radius `e₀ / |ι|` with no factor-2 loss — the special structured case in which the
-union/product locator of `reedSolomon_sharedLocator_product_exists` collapses to a single factor. -/
-theorem reedSolomon_jointAgreement_fullRadius_of_nested_errors [Fintype F]
-    {α : ι ↪ F} {k e₀ : ℕ} [NeZero k] {u₀ u₁ : ι → F} {f₀ f₁ : F[X]}
-    (hf₀ : f₀ ∈ Polynomial.degreeLT F k) (hf₁ : f₁ ∈ Polynomial.degreeLT F k)
-    (herr₀ : (Finset.univ.filter (fun i => u₀ i ≠ f₀.eval (α i))).card ≤ e₀)
-    (hnest : Finset.univ.filter (fun i => u₁ i ≠ f₁.eval (α i)) ⊆
-             Finset.univ.filter (fun i => u₀ i ≠ f₀.eval (α i)))
-    (hn : 0 < Fintype.card ι) (he : e₀ ≤ Fintype.card ι) :
-    Code.jointAgreement (↑(ReedSolomon.code α k) : Set (ι → F))
-      ((e₀ : ℝ≥0) / (Fintype.card ι : ℝ≥0))
-      (![u₀, u₁] : Fin 2 → ι → F) := by
-  classical
-  set errs₀ := Finset.univ.filter (fun i => u₀ i ≠ f₀.eval (α i)) with herrs₀
-  set E : F[X] := ∏ i ∈ errs₀, (X - C (α i)) with hE
-  have hEne : E ≠ 0 := by
-    rw [hE]; exact Finset.prod_ne_zero_iff.mpr fun i _ => X_sub_C_ne_zero (α i)
-  have hEdeg : E.natDegree ≤ e₀ := by
-    rw [hE, natDegree_prod _ _ fun i _ => X_sub_C_ne_zero (α i)]
-    simp only [natDegree_X_sub_C, Finset.sum_const, smul_eq_mul, mul_one]
-    exact herr₀
-  have hkey₀ : ∀ i, E.eval (α i) * u₀ i = (E * f₀).eval (α i) := by
-    intro i
-    by_cases hi : i ∈ errs₀
-    · have hEz : E.eval (α i) = 0 := by
-        rw [hE, eval_prod]; exact Finset.prod_eq_zero hi (by simp)
-      simp [hEz, eval_mul]
-    · have hyc : u₀ i = f₀.eval (α i) := by
-        by_contra h; exact hi (Finset.mem_filter.mpr ⟨Finset.mem_univ _, h⟩)
-      rw [eval_mul, hyc]
-  have hkey₁ : ∀ i, E.eval (α i) * u₁ i = (E * f₁).eval (α i) := by
-    intro i
-    by_cases hi : i ∈ errs₀
-    · have hEz : E.eval (α i) = 0 := by
-        rw [hE, eval_prod]; exact Finset.prod_eq_zero hi (by simp)
-      simp [hEz, eval_mul]
-    · have hi₁ : i ∉ Finset.univ.filter (fun i => u₁ i ≠ f₁.eval (α i)) := fun h => hi (hnest h)
-      have hyc : u₁ i = f₁.eval (α i) := by
-        by_contra h; exact hi₁ (Finset.mem_filter.mpr ⟨Finset.mem_univ _, h⟩)
-      rw [eval_mul, hyc]
-  exact reedSolomon_jointAgreement_of_shared_locator_exact
-    hEne hEdeg hf₀ hf₁ hkey₀ hkey₁ hn he
-
-=======
->>>>>>> 2d6d6ea7b7467832627d6b38deb68224d14873dd
 omit [Fintype ι] in
 open Polynomial in
 /-- **C3 — Shared-locator degree lower bound (the factor-2 loss is forced).**  Take single-error
@@ -921,17 +869,11 @@ words `u₀ = δ_a`, `u₁ = δ_b` with `a ≠ b`, and target codewords `f₀ = 
 Any nonzero locator `E` solving both key equations vanishes at the two *distinct* points `α a`,
 `α b`, hence `2 ≤ E.natDegree`.  So **no** single locator of degree `≤ max e₀ e₁ = 1` exists for a
 fixed `(f₀, f₁)`: the union/product degree `e₀ + e₁` of `reedSolomon_sharedLocator_product_exists`
-<<<<<<< HEAD
-is optimal for any elementary construction.  (This does *not* contradict the conditional
-shared-locator theorems, which take a hypothetical `(E, g₀, g₁)`; it is exactly *why* BCIKS20 must
-route the exact radius through many-close-scalars averaging rather than a fixed-target locator.) -/
-=======
 is optimal for any elementary construction, and the full-radius collapse of
 `reedSolomon_sharedLocator_of_nested_errors` genuinely requires the nesting hypothesis.  (This does
 *not* contradict the conditional shared-locator theorems, which take a hypothetical `(E, g₀, g₁)`;
 it is exactly *why* BCIKS20 must route the exact radius through many-close-scalars averaging rather
 than a fixed-target locator.) -/
->>>>>>> 2d6d6ea7b7467832627d6b38deb68224d14873dd
 theorem reedSolomon_sharedLocator_degree_lower_bound {α : ι ↪ F} {a b : ι} (hab : a ≠ b)
     {E : F[X]} (hE0 : E ≠ 0)
     (hkey₀ : ∀ i, E.eval (α i) * (if i = a then (1 : F) else 0) = (E * 0).eval (α i))
@@ -946,7 +888,7 @@ theorem reedSolomon_sharedLocator_degree_lower_bound {α : ι ↪ F} {a b : ι} 
   have hsub : ({α a, α b} : Finset F) ⊆ E.roots.toFinset := by
     intro x hx
     simp only [Finset.mem_insert, Finset.mem_singleton] at hx
-    rw [Multiset.mem_toFinset, mem_roots hE0, IsRoot.def]
+    rw [Multiset.mem_toFinset, Polynomial.mem_roots hE0, Polynomial.IsRoot.def]
     rcases hx with rfl | rfl
     · exact haa
     · exact hbb
@@ -954,7 +896,7 @@ theorem reedSolomon_sharedLocator_degree_lower_bound {α : ι ↪ F} {a b : ι} 
   calc 2 = ({α a, α b} : Finset F).card := hcard.symm
     _ ≤ E.roots.toFinset.card := Finset.card_le_card hsub
     _ ≤ Multiset.card E.roots := Multiset.toFinset_card_le _
-    _ ≤ E.natDegree := card_roots' _
+    _ ≤ E.natDegree := Polynomial.card_roots' _
 
 #print axioms ReedSolomon.jointAgreement_of_common_locator
 #print axioms ReedSolomon.reedSolomon_sharedLocator_product_exists
@@ -965,10 +907,6 @@ theorem reedSolomon_sharedLocator_degree_lower_bound {α : ι ↪ F} {a b : ι} 
 #print axioms ReedSolomon.reedSolomon_jointAgreement_of_shared_locator
 #print axioms ReedSolomon.reedSolomon_jointAgreement_of_shared_locator_exact
 #print axioms ReedSolomon.reedSolomon_jointAgreement_of_degreeOne_decoding_curve
-<<<<<<< HEAD
-#print axioms ReedSolomon.reedSolomon_jointAgreement_fullRadius_of_nested_errors
-=======
->>>>>>> 2d6d6ea7b7467832627d6b38deb68224d14873dd
 #print axioms ReedSolomon.reedSolomon_sharedLocator_degree_lower_bound
 
 end ReedSolomon

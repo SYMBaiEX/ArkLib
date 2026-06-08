@@ -153,7 +153,6 @@ import ArkLib.Data.CodingTheory.PolishchukSpielman.PolishchukSpielman
 import ArkLib.Data.CodingTheory.PolishchukSpielman.Resultant
 import ArkLib.Data.CodingTheory.Prelims
 import ArkLib.Data.CodingTheory.ProximityGap
-import ArkLib.Data.CodingTheory.ProximityGap.ABF26PromotedCandidate
 import ArkLib.Data.CodingTheory.ProximityGap.AHIV22
 import ArkLib.Data.CodingTheory.ProximityGap.AHIV22Support
 import ArkLib.Data.CodingTheory.ProximityGap.BCIKS20
@@ -307,18 +306,6 @@ import ArkLib.Data.CodingTheory.ProximityGap.CS25SecondMomentPairs
 import ArkLib.Data.CodingTheory.ProximityGap.CS25SecondMomentReduction
 import ArkLib.Data.CodingTheory.ProximityGap.CS25SecondMomentUpper
 import ArkLib.Data.CodingTheory.ProximityGap.CS25TailSupport
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateCollapse
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateDerandomization
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateDerandomizationHasse
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateDerandomizationMatrix
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateDomainSymmetry
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateExtrapolation
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateFoldedRS
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateFractionalGS
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateInterpolation
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateResultantCollapse
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateSubfieldProjection
-import ArkLib.Data.CodingTheory.ProximityGap.CandidateSyndrome
 import ArkLib.Data.CodingTheory.ProximityGap.CapacityBounds
 import ArkLib.Data.CodingTheory.ProximityGap.CapacityBoundsAdmissible
 import ArkLib.Data.CodingTheory.ProximityGap.CapacityBoundsProofs
@@ -361,7 +348,6 @@ import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141Progress
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141UDRProximityGap
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge141UniformResolved
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge1BruteForce
-import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge1BruteForceRefutations
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge1Proof
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenge244HwitRefutation
 import ArkLib.Data.CodingTheory.ProximityGap.GrandChallengeCollapse
@@ -460,7 +446,6 @@ import ArkLib.Data.CodingTheory.ProximityGap.OnePointFiveJohnsonGeometry
 import ArkLib.Data.CodingTheory.ProximityGap.PermanentlyBlocked
 import ArkLib.Data.CodingTheory.ProximityGap.ProximityGapP
 import ArkLib.Data.CodingTheory.ProximityGap.ProximityGenerators
-import ArkLib.Data.CodingTheory.ProximityGap.ProximityPrizeProof
 import ArkLib.Data.CodingTheory.ProximityGap.QueryRoundAmplification
 import ArkLib.Data.CodingTheory.ProximityGap.RSDistinctness
 import ArkLib.Data.CodingTheory.ProximityGap.RSListDecodingFrontier
@@ -472,7 +457,6 @@ import ArkLib.Data.CodingTheory.ProximityGap.SubsetSumErdosHeilbronn
 import ArkLib.Data.CodingTheory.ProximityGap.SubsetSumRadiusOne
 import ArkLib.Data.CodingTheory.ProximityGap.TwoLineExtraction
 import ArkLib.Data.CodingTheory.ProximityGap.VandermondeMCAExtract
-import ArkLib.Data.CodingTheory.ProximityGap._mca_research_loop
 import ArkLib.Data.CodingTheory.ProximityPrizeCA
 import ArkLib.Data.CodingTheory.ProximityPrizeLeaves
 import ArkLib.Data.CodingTheory.ProximityPrizeLeaves2
