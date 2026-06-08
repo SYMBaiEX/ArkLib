@@ -112,8 +112,32 @@ lemma extractSuffixFromChallenge_congr_destIdx
   subst h_idx_eq
   rw [cast_eq]
 
+omit [CharP L 2] [SampleableType L] [DecidableEq 𝔽q] hF₂ h_β₀_eq_1 [NeZero ℓ] in
+private theorem iterated_fold_heq_of_fin_eq_query
+    (i : Fin r) (steps : ℕ)
+    {destIdx₁ destIdx₂ : Fin r} (hij : destIdx₁ = destIdx₂)
+    (h_destIdx₁ : destIdx₁.val = i.val + steps)
+    (h_destIdx₂ : destIdx₂.val = i.val + steps)
+    (h_destIdx_le₁ : destIdx₁ ≤ ℓ) (h_destIdx_le₂ : destIdx₂ ≤ ℓ)
+    (f : OracleFunction 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) i)
+    (r_challenges : Fin steps → L) :
+    HEq
+      (iterated_fold 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+        (i := i) (steps := steps) (destIdx := destIdx₁)
+        h_destIdx₁ h_destIdx_le₁ f r_challenges)
+      (iterated_fold 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+        (i := i) (steps := steps) (destIdx := destIdx₂)
+        h_destIdx₂ h_destIdx_le₂ f r_challenges) := by
+  cases hij
+  apply heq_of_eq
+  funext y
+  cases proof_irrel_heq h_destIdx₁ h_destIdx₂
+  cases proof_irrel_heq h_destIdx_le₁ h_destIdx_le₂
+  rfl
+
 set_option maxHeartbeats 2000000 in
-omit [SampleableType L] h_β₀_eq_1 in
+-- The zero-step fold identity must be transported across proof-irrelevant `Fin` index casts.
+omit [SampleableType L] in
 /-- **First Oracle Equals Polynomial Oracle Function**:
 When `strictOracleFoldingConsistencyProp` holds, the first oracle (`getFirstOracle`) equals
 the polynomial oracle function `f₀` derived from the multilinear polynomial `t`.
@@ -137,19 +161,46 @@ lemma polyToOracleFunc_eq_getFirstOracle
   have h_first_oracle := h_consistency ⟨0, by omega⟩
   dsimp only [strictOracleFoldingConsistencyProp] at h_first_oracle
   dsimp only [f₀, P₀, getFirstOracle] at h_first_oracle ⊢
-  simp only [id_eq] at h_first_oracle ⊢
+  simp only [id_eq, OracleStatement, Fin.mk_zero'] at h_first_oracle ⊢
   rw [h_first_oracle]
-  funext y
-  -- `iterated_fold` over `0 * ϑ = 0` steps is the identity (modulo the definitional index `cast`);
-  -- expose the `Eq.mp` as a `cast` and discharge it, then collapse the zero-step fold.
-  simp only [eq_mp_eq_cast]
-  rw [iterated_fold_congr_steps_index 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (steps' := 0)
+  apply eq_of_heq
+  refine HEq.trans ?_ (cast_heq _ _).symm
+  have h_zero_heq :
+      HEq
+        (polyToOracleFunc 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+          (domainIdx := 0) (P := P₀))
+        (iterated_fold 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (i := 0)
+          (steps := 0 * ϑ) (destIdx := 0)
+          (h_destIdx := by simp only [Nat.zero_mod, zero_mul, Fin.coe_ofNat_eq_mod, add_zero])
+          (h_destIdx_le := by
+            simpa only [Fin.val_zero] using (Nat.zero_le ℓ))
+          (f := fun y => P₀.val.eval y.val)
+          (r_challenges :=
+            getFoldingChallenges (r := r) (𝓡 := 𝓡) (ϑ := 0 * ϑ) i challenges 0
+              (h := by omega))) := by
+    apply heq_of_eq
+    funext y
+    rw [iterated_fold_congr_steps_index 𝔽q β
+      (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (steps' := 0)
       (h_destIdx := by simp only [Nat.zero_mod, zero_mul, Fin.coe_ofNat_eq_mod, add_zero])
-      (h_destIdx_le := by simp only [zero_mul, zero_le])
+      (h_destIdx_le := by
+        simpa only [Fin.val_zero] using (Nat.zero_le ℓ))
       (h_steps_eq_steps' := by simp only [zero_mul])]
-  rw [iterated_fold_zero_steps 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (i := 0)
-      (h_destIdx := by simp only [Nat.zero_mod, zero_mul, Fin.coe_ofNat_eq_mod])]
-  simp only [polyToOracleFunc, cast_cast, cast_eq]
+    rw [iterated_fold_zero_steps 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (i := 0)
+      (h_destIdx := by simp only [Nat.zero_mod, Fin.coe_ofNat_eq_mod])]
+    simp only [polyToOracleFunc, eq_mp_eq_cast, cast_eq, P₀]
+  exact h_zero_heq.trans <|
+    iterated_fold_heq_of_fin_eq_query 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+      (i := 0) (steps := 0 * ϑ) (destIdx₁ := 0)
+      (hij := by ext; simp)
+      (h_destIdx₁ := by simp only [Nat.zero_mod, zero_mul, Fin.coe_ofNat_eq_mod, add_zero])
+      (h_destIdx₂ := by simp)
+      (h_destIdx_le₁ := by simpa only [Fin.val_zero] using (Nat.zero_le ℓ))
+      (h_destIdx_le₂ := by simp)
+      (f := fun y => P₀.val.eval y.val)
+      (r_challenges :=
+        getFoldingChallenges (r := r) (𝓡 := 𝓡) (ϑ := 0 * ϑ) i challenges 0
+          (h := by omega))
 
 /-- Decompose challenge v at position i into (fiberIndex, suffix).
     This is the inverse of `Nat.joinBits` in some sense.
@@ -477,6 +528,7 @@ lemma getFiberPoint_eq_qMap_total_fiber
   simp only [oraclePositionToDomainIndex, id_eq]
 
 set_option maxHeartbeats 1600000 in
+-- Expanding the logical query points exposes the full quotient-fiber equality at block granularity.
 lemma logical_queryFiberPoints_eq_fiberEvaluations
     (oStmt : ∀ j, OracleStatement 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) ϑ (Fin.last ℓ) j)
     (k : Fin (ℓ / ϑ)) (v : sDomain 𝔽q β h_ℓ_add_R_rate ⟨0, by omega⟩) :
@@ -495,6 +547,36 @@ lemma logical_queryFiberPoints_eq_fiberEvaluations
   simp only [logical_queryFiberPoints, fiberEvaluations]
   rw [getFiberPoint_eq_qMap_total_fiber 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) k v u]
   rfl
+
+/-- **RESIDUAL (Binius matrix form bit order).**
+
+The raw single-point matrix evaluator uses `challengeTensorExpansion`/`multilinearWeight` row order,
+while the proved legacy matrix evaluator used by `iterated_fold` orders the challenge tensor by the
+opposite bit convention. The canonical `localized_fold_matrix_form` therefore delegates to
+`iterated_fold` in `Prelude.lean`; this residual isolates the remaining theorem that the raw
+single-point matrix expression, when fed the canonical `fiberEvaluations`, agrees with that
+`iterated_fold` value after reconciling the row/fiber bit-reversal. -/
+class SinglePointLocalizedFoldMatrixFormResidual : Prop where
+  holds : ∀ {i destIdx : Fin r} (steps : ℕ)
+    (h_destIdx : destIdx.val = i.val + steps) (h_destIdx_le : destIdx ≤ ℓ)
+    (f : OracleFunction 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) i)
+    (r_challenges : Fin steps → L)
+    (y : sDomain 𝔽q β h_ℓ_add_R_rate destIdx),
+    single_point_localized_fold_matrix_form 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+      (i := i) (steps := steps) (destIdx := destIdx)
+      (h_destIdx := h_destIdx) (h_destIdx_le := h_destIdx_le)
+      (r_challenges := r_challenges) (y := y)
+      (fiber_eval_mapping :=
+        fiberEvaluations 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+          (i := i) (steps := steps) (destIdx := destIdx)
+          (h_destIdx := h_destIdx) (h_destIdx_le := h_destIdx_le) (f := f) (y := y)) =
+    iterated_fold 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+      (i := i) (steps := steps) (destIdx := destIdx)
+      (h_destIdx := h_destIdx) (h_destIdx_le := h_destIdx_le)
+      (f := f) (r_challenges := r_challenges) y
+
+variable [SinglePointLocalizedFoldMatrixFormResidual 𝔽q β
+  (h_ℓ_add_R_rate := h_ℓ_add_R_rate)]
 
 lemma logical_computeFoldedValue_eq_iterated_fold
     (oStmt : ∀ j, OracleStatement 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) ϑ (Fin.last ℓ) j)
@@ -519,24 +601,29 @@ lemma logical_computeFoldedValue_eq_iterated_fold
             exact Nat.add_lt_add_left j.isLt (k.val * ϑ)
           exact lt_of_lt_of_le h_lt h_le⟩)
       (getChallengeSuffix 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (k := k) (v := v)) := by
-  simp only [logical_computeFoldedValue]
-  rw [iterated_fold_eq_matrix_form 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
-    (i := ⟨k.val * ϑ,
-      lt_r_of_lt_ℓ (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (x := k.val * ϑ)
-        (h := k_mul_ϑ_lt_ℓ (k := k))⟩) (steps := ϑ)
-    (h_destIdx := by rfl) (h_destIdx_le := by exact k_succ_mul_ϑ_le_ℓ_₂ (k := k))
-    (f := oStmt ⟨k.val, by
-      simp only [toOutCodewordsCount, Fin.val_last, lt_self_iff_false, ↓reduceIte, add_zero,
-        Fin.is_lt]⟩)
-    (r_challenges := fun j =>
-      stmt.challenges ⟨k.val * ϑ + j.val, by
-        have h_le : k.val * ϑ + ϑ ≤ ℓ := k_succ_mul_ϑ_le_ℓ_₂ (k := k)
-        have h_lt : k.val * ϑ + j.val < k.val * ϑ + ϑ := by
-          exact Nat.add_lt_add_left j.isLt (k.val * ϑ)
-        exact lt_of_lt_of_le h_lt h_le⟩)]
-  simp [localized_fold_matrix_form, single_point_localized_fold_matrix_form,
+  simpa [logical_computeFoldedValue,
     logical_queryFiberPoints_eq_fiberEvaluations 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
-      oStmt k v]
+      oStmt k v] using
+    (SinglePointLocalizedFoldMatrixFormResidual.holds
+      (𝔽q := 𝔽q) (β := β) (h_ℓ_add_R_rate := h_ℓ_add_R_rate)
+      (i := ⟨k.val * ϑ,
+        lt_r_of_lt_ℓ (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (x := k.val * ϑ)
+          (h := k_mul_ϑ_lt_ℓ (k := k))⟩)
+      (destIdx := ⟨k.val * ϑ + ϑ, by
+        have h_le := k_succ_mul_ϑ_le_ℓ_₂ (k := k)
+        omega⟩)
+      (steps := ϑ) (h_destIdx := by rfl)
+      (h_destIdx_le := by exact k_succ_mul_ϑ_le_ℓ_₂ (k := k))
+      (f := oStmt ⟨k.val, by
+        simp only [toOutCodewordsCount, Fin.val_last, lt_self_iff_false, ↓reduceIte, add_zero,
+          Fin.is_lt]⟩)
+      (r_challenges := fun j =>
+        stmt.challenges ⟨k.val * ϑ + j.val, by
+          have h_le : k.val * ϑ + ϑ ≤ ℓ := k_succ_mul_ϑ_le_ℓ_₂ (k := k)
+          have h_lt : k.val * ϑ + j.val < k.val * ϑ + ϑ := by
+            exact Nat.add_lt_add_left j.isLt (k.val * ϑ)
+          exact lt_of_lt_of_le h_lt h_le⟩)
+      (y := getChallengeSuffix 𝔽q β (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (k := k) (v := v)))
 
 end LogicalOracleVerification
 
@@ -853,6 +940,7 @@ lemma queryBlockSourceSuffix_maps_to_destSuffix
   exact h_generates.symm
 
 set_option maxHeartbeats 400000 in
+-- The close-codeword transport unfolds uniqueness across heterogeneous domain indices.
 lemma UDRCodeword_eval_eq_of_fin_eq
     {i j : Fin r} (hij : i = j)
     {hi : i ≤ ℓ} {hj : j ≤ ℓ}
@@ -885,6 +973,7 @@ lemma UDRCodeword_eval_eq_of_fin_eq
       y
 
 set_option maxHeartbeats 400000 in
+-- Successor-codeword evaluation combines suffix alignment with UDR codeword transport.
 lemma successor_codeword_eval_eq
     (oStmtIn : ∀ j, OracleStatement 𝔽q β (ϑ := ϑ)
       (h_ℓ_add_R_rate := h_ℓ_add_R_rate) (Fin.last ℓ) j)
