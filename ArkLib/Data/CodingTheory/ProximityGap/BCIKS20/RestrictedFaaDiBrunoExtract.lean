@@ -797,14 +797,21 @@ theorem embeddingCleared_eq_uncleared_of_wDivTarget_exactDegree
   exact mul_right_cancel₀
     (pow_ne_zero _ (liftToFunctionField_leadingCoeff_ne_zero (H := H))) hscale
 
-/-- Order-zero carved-core specialization of the W-divisor-to-cleared scaling bridge. -/
+/-- Order-zero carved-core specialization of the W-divisor-to-cleared scaling bridge.
+
+The W-divisor target contributes the uniform divisor exponent `R.natDegree`, while the cleared
+representative itself must be cleared at the actual `Y`-degree of the order-one specialized Hasse
+coefficient. -/
 theorem embeddingCleared_mul_Wpow_eq_Wpow_mul_uncleared_of_restrictedMatchAt_zero
     (x₀ : F) (R : F[X][X][Y]) (hHyp : ClaimA2.Hypotheses x₀ R H)
     (hd : 2 ≤ R.natDegree)
     (hmatch : RestrictedFaaDiBrunoMatchAt H x₀ R hHyp 0) :
     embeddingOf𝒪Into𝕃 H
         (Ideal.Quotient.mk (Ideal.span {H_tilde' H})
-          (hasseCoeffRepr𝒪_cleared H x₀ R 1 0 R.natDegree) : 𝒪 H)
+          (hasseCoeffRepr𝒪_cleared H x₀ R 1 0
+            (Bivariate.natDegreeY
+              (Bivariate.evalX (Polynomial.C x₀) (hasseDerivX 1 (hasseDerivY 0 R)))))
+          : 𝒪 H)
       * liftToFunctionField (H := H) H.leadingCoeff ^ R.natDegree
       =
       liftToFunctionField (H := H) H.leadingCoeff
@@ -816,14 +823,22 @@ theorem embeddingCleared_mul_Wpow_eq_Wpow_mul_uncleared_of_restrictedMatchAt_zer
     (HasseCoeffRepr𝒪UnclearedWDivTarget.of_restrictedMatchAt_zero
       H x₀ R hHyp hd hmatch)
 
-/-- Order-zero partition-residual specialization of the W-divisor-to-cleared scaling bridge. -/
+/-- Order-zero partition-residual specialization of the W-divisor-to-cleared scaling bridge.
+
+This is the partition version of
+`embeddingCleared_mul_Wpow_eq_Wpow_mul_uncleared_of_restrictedMatchAt_zero`: the divisor exponent is
+the residual's `R.natDegree`, but the cleared representative is indexed by the actual specialized
+`Y`-degree. -/
 theorem embeddingCleared_mul_Wpow_eq_Wpow_mul_uncleared_of_partitionMatchAt_zero
     (x₀ : F) (R : F[X][X][Y]) (hHyp : ClaimA2.Hypotheses x₀ R H)
     (hd : 2 ≤ R.natDegree)
     (hpart : RestrictedFaaDiBrunoPartitionMatchAt H x₀ R hHyp 0) :
     embeddingOf𝒪Into𝕃 H
         (Ideal.Quotient.mk (Ideal.span {H_tilde' H})
-          (hasseCoeffRepr𝒪_cleared H x₀ R 1 0 R.natDegree) : 𝒪 H)
+          (hasseCoeffRepr𝒪_cleared H x₀ R 1 0
+            (Bivariate.natDegreeY
+              (Bivariate.evalX (Polynomial.C x₀) (hasseDerivX 1 (hasseDerivY 0 R)))))
+          : 𝒪 H)
       * liftToFunctionField (H := H) H.leadingCoeff ^ R.natDegree
       =
       liftToFunctionField (H := H) H.leadingCoeff
