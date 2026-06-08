@@ -546,6 +546,44 @@ theorem simulateQ_fiatShamirCoupled_liftM_left
         rw [OracleComp.liftComp_eq_liftM]]
   exact simulateQ_fiatShamirCoupled_liftComp_left srImpl oa
 
+/-- Simulating a lifted Fiat-Shamir challenge-oracle computation through the coupled implementation
+projects to the cached challenge-table implementation. This is the right-side companion to
+`simulateQ_fiatShamirCoupled_liftComp_left`. -/
+theorem simulateQ_fiatShamirCoupled_liftComp_right
+    {α : Type}
+    (srImpl : QueryImpl oSpec
+      (StateT (QueryImpl (fsChallengeOracle StmtIn pSpec) Id) ProbComp))
+    (oa : OracleComp (fsChallengeOracle StmtIn pSpec) α) :
+    simulateQ
+        (fiatShamirCoupledQueryImpl (pSpec := pSpec) (StmtIn := StmtIn) srImpl)
+        (OracleComp.liftComp oa (oSpec + fsChallengeOracle StmtIn pSpec)) =
+      simulateQ
+        (ProtocolSpec.fsChallengeQueryImplState (Statement := StmtIn) (pSpec := pSpec))
+        oa := by
+  simpa [fiatShamirCoupledQueryImpl, QueryImpl.addLift_def] using
+    (QueryImpl.simulateQ_add_liftComp_right
+      (impl₁' := srImpl)
+      (impl₂' := ProtocolSpec.fsChallengeQueryImplState
+        (Statement := StmtIn) (pSpec := pSpec))
+      (ob := oa))
+
+/-- `liftM` form of `simulateQ_fiatShamirCoupled_liftComp_right`. -/
+theorem simulateQ_fiatShamirCoupled_liftM_right
+    {α : Type}
+    (srImpl : QueryImpl oSpec
+      (StateT (QueryImpl (fsChallengeOracle StmtIn pSpec) Id) ProbComp))
+    (oa : OracleComp (fsChallengeOracle StmtIn pSpec) α) :
+    simulateQ
+        (fiatShamirCoupledQueryImpl (pSpec := pSpec) (StmtIn := StmtIn) srImpl)
+        (liftM oa : OracleComp (oSpec + fsChallengeOracle StmtIn pSpec) α) =
+      simulateQ
+        (ProtocolSpec.fsChallengeQueryImplState (Statement := StmtIn) (pSpec := pSpec))
+        oa := by
+  rw [show (liftM oa : OracleComp (oSpec + fsChallengeOracle StmtIn pSpec) α) =
+      OracleComp.liftComp oa (oSpec + fsChallengeOracle StmtIn pSpec) by
+        rw [OracleComp.liftComp_eq_liftM]]
+  exact simulateQ_fiatShamirCoupled_liftComp_right srImpl oa
+
 end Reduction
 
 #print axioms Reduction.fiatShamirCoupledQueryImpl
@@ -554,6 +592,8 @@ end Reduction
 #print axioms Reduction.fiatShamirCoupledQueryImpl_eq_addLift_fsChallengeQueryImplState
 #print axioms Reduction.simulateQ_fiatShamirCoupled_liftComp_left
 #print axioms Reduction.simulateQ_fiatShamirCoupled_liftM_left
+#print axioms Reduction.simulateQ_fiatShamirCoupled_liftComp_right
+#print axioms Reduction.simulateQ_fiatShamirCoupled_liftM_right
 
 end CoupledQueryImpl
 
@@ -993,8 +1033,6 @@ theorem fiatShamir_soundness_of_stateRestoration_canonical
 
 end CanonicalSoundness
 
-<<<<<<< HEAD
-=======
 section CanonicalKnowledgeSoundnessSupport
 
 /-- Canonical straightline extractor for the transformed one-message Fiat-Shamir verifier, induced
@@ -1038,7 +1076,6 @@ theorem fiatShamirStraightlineExtractorOfStateRestoration_apply
 
 end CanonicalKnowledgeSoundnessSupport
 
->>>>>>> 2d6d6ea7b7467832627d6b38deb68224d14873dd
 /-- Basic Fiat-Shamir soundness from a transfer residual at the target error, after first relaxing
 the state-restoration soundness hypothesis to that target error. -/
 theorem fiatShamir_soundness_of_stateRestoration_pre_mono_error
